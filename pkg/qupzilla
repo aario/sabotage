@@ -1,0 +1,22 @@
+[mirrors]
+https://github.com/QupZilla/qupzilla/releases/download/v1.8.9/QupZilla-1.8.9.tar.xz
+
+[vars]
+filesize=3004644
+sha512=64ee064aa55f4aa1c56ca3a925dbec66612d522eec570a96448d940d52239cb74dfb08b89610008b3ee669cfb4b287393020b8070162697e991aa8c04c57c448
+
+[deps]
+cmake
+openssl
+qt5
+hunspell
+
+[build]
+export QUPZILLA_PREFIX="$butch_prefix" \
+       USE_WEBGL=true      
+
+qmake
+
+make -j$MAKE_THREADS
+
+make install
