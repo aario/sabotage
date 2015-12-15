@@ -1,0 +1,131 @@
+[vars]
+
+[mirrors]
+
+[deps]
+perl-archive-zip
+zip
+unzip
+wget
+boost
+cups
+curl
+dbus-glib
+graphite2
+gst01-plugins-base
+gtk+2
+icu
+lcms2
+libatomic-ops
+libjpeg
+librsvg
+libxml2
+libxslt
+mesalib
+neon
+poppler
+gnu-tar
+hunspell
+
+[deps.host]
+aria2
+gnu-tar
+gnu-touch
+gnu-cp
+
+[build]
+#Aria2 downloader is highly needed as downloading libreoffice and all its tens of components
+#from libreoffice host may takes days and timeout hundereds of times thus making compilation
+#from source quite an impossible mission
+aria2cmd="aria2c -k1M -x10 -s10 -j2 -c"
+
+libreoffice_url=http://download.documentfoundation.org/libreoffice/src/5.0.3/libreoffice-5.0.3.2.tar.xz
+libreoffice_dict_url=http://download.documentfoundation.org/libreoffice/src/5.0.3/libreoffice-dictionaries-5.0.3.2.tar.xz
+
+cd $S/tarballs/
+$aria2cmd $libreoffice_url
+$aria2cmd $libreoffice_dict_url
+
+dest="$S/build/"
+cd $dest
+mkdir -p ./libreoffice
+cd ./libreoffice
+
+tar -xf $S/tarballs/libreoffice-5.0.3.2.tar.xz --no-overwrite-dir
+cd libreoffice-5.0.3.2
+install -dm755 external/tarballs
+ln -sf $S/tarballs/libreoffice-dictionaries-5.0.3.2.tar.xz external/tarballs/
+export LO_PREFIX=$butch_prefix
+
+sed -e "/gzip -f/d"   \
+    -e "s|.1.gz|.1|g" \
+    -i bin/distro-install-desktop-integration &&
+
+sed -e "/distro-install-file-lists/d" -i Makefile.in &&
+
+sed -e "/ustrbuf/a #include <algorithm>" \
+    -i svl/source/misc/gridprinter.cxx   &&
+
+chmod -v +x bin/unpack-sources
+mkdir -p external/tarballs/tmp
+cd external/tarballs/tmp
+
+cp -rp /tmp/libreofficedownloads/* ./
+
+$aria2cmd -i $K/libreoffice-download-list || echo "Some downloads encountered errors. Anyway..."
+cd ../../..
+
+patch -p1 < "$K"/libreoffice-5.0.3.2-linux-musl-busybox.patch
+
+CPPFLAGS="-D_GNU_SOURCE" CFLAGS="$optcflags" CXXFLAGS="$optcflags" \
+LDFLAGS="$optldflags -Wl,-rpath-link=$butch_root_dir$butch_prefix/lib" \
+./autogen.sh --prefix="$butch_prefix"    \
+             --sysconfdir=/etc           \
+             --with-vendor="BLFS"        \
+             --with-lang="en-US"         \
+             --with-myspell-dicts        \
+             --with-alloc=system         \
+             --without-java              \
+             --without-system-dicts      \
+             --disable-gconf             \
+             --disable-odk               \
+             --disable-postgresql-sdbc   \
+             --enable-release-build=yes  \
+             --disable-python            \
+             --without-system-boost      \
+             --without-system-clucene    \
+             --with-system-cairo         \
+             --with-system-curl          \
+             --with-system-expat         \
+             --with-system-graphite      \
+             --without-system-harfbuzz   \
+             --with-system-icu           \
+             --with-system-jpeg          \
+             --with-system-lcms2         \
+             --with-system-libpng        \
+             --with-system-libxml        \
+             --with-system-mesa-headers  \
+             --with-system-neon          \
+             --with-system-hunspell		 \
+             --without-system-npapi-headers \
+             --without-system-nss        \
+             --without-system-odbc       \
+             --without-system-openldap   \
+             --without-system-openssl    \
+             --with-system-poppler       \
+             --without-system-redland    \
+             --with-system-zlib          \
+             --with-parallelism=$MAKE_THREADS \
+             --disable-gstreamer-1-0     \
+             --enable-gstreamer-0-10     \
+             --disable-liblangtag
+
+ln -sf ./src/libreoffice-dictionaries-5.0.3.2/dictionaries ./
+patch -p1 < $K/libreoffice-nss-musl.patch
+
+make V=1 -j$MAKE_THREADS
+make DESTDIR="$butch_install_dir" distro-pack-install
+
+install -v -m755 -d $butch_install_dir/$butch_prefix/share/appdata
+install -v -m644    sysui/desktop/appstream-appdata/*.xml \
+                    $butch_install_dir/$butch_prefix/share/appdata

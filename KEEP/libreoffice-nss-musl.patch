@@ -1,0 +1,24 @@
+--- ./external/nss/nss.patch.orig	2015-12-06 15:21:28.052359120 +0000
++++ ./external/nss/nss.patch	2015-12-06 15:28:07.368366983 +0000
+@@ -10,6 +10,21 @@
+      _OPTIMIZE_FLAGS=-O2
+      _DEBUG_FLAGS="-g -fno-inline"  # most people on linux use gcc/gdb, and that
+                                     # combo is not yet good at debugging inlined
++--- a/a/nspr/pr/src/misc/prnetdb.c	2015-12-06 15:02:52.489305577 +0000
+++++ b/b/nspr/pr/src/misc/prnetdb.c	2015-12-06 15:03:57.713490162 +0000
++@@ -89,6 +89,11 @@
++ #define _PR_HAVE_5_ARG_GETPROTO_R
++ #endif
++ 
+++#undef _PR_HAVE_GETPROTO_R
+++#undef _PR_HAVE_GETPROTO_R_INT
+++#undef _PR_HAVE_GETPROTO_R_POINTER
+++#undef _PR_HAVE_5_ARG_GETPROTO_R
+++
++ #if !defined(_PR_HAVE_GETPROTO_R)
++ PRLock* _getproto_lock = NULL;
++ #endif
++
+ diff -ru a/nss/cmd/platlibs.mk b/nss/cmd/platlibs.mk
+ --- a/a/nss/cmd/platlibs.mk	2014-09-29 16:46:38.306422654 +0100
+ +++ b/b/nss/cmd/platlibs.mk	2014-09-29 16:47:42.987012253 +0100
