@@ -12,11 +12,18 @@ qt5
 hunspell
 
 [build]
+patch -p1 < $K/qupzilla-backtrace.patch
+patch -p1 < $K/qupzilla-static-lib.patch
+
 export QUPZILLA_PREFIX="$butch_prefix" \
        USE_WEBGL=true      
+export DISABLE_DBUS=true
+qmake \
+QMAKE_CPPFLAGS+="-D_GNU_SOURCE" QMAKE_CFLAGS+="$optcflags" QMAKE_CXXFLAGS+="$optcflags" \
+QMAKE_LFLAGS+="$optldflags -lQt5X11Extras -lhunspell-1.3 -Wl,-rpath-link=$butch_root_dir$butch_prefix/lib" \
+CONFIG+="staticlib"
 
-qmake
 
 make -j$MAKE_THREADS
 
-make install
+make DESTDIR="$butch_install_dir" install

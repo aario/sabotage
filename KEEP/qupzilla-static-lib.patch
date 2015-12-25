@@ -1,0 +1,11 @@
+--- ./src/main/main.pro.orig	2015-12-20 15:02:54.197477253 +0000
++++ ./src/main/main.pro	2015-11-11 15:13:24.000000000 +0000
+@@ -16,7 +16,7 @@
+ }
+ else {
+ !unix|mac: LIBS += -L$$QZ_DESTDIR -lQupZilla
+-!mac:unix: LIBS += $$QZ_DESTDIR/libQupZilla.so
++!mac:unix: LIBS += $$QZ_DESTDIR/libQupZilla.a
+ }
+ 
+ unix:!contains(DEFINES, "DISABLE_DBUS") QT += dbus

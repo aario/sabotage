@@ -1,0 +1,28 @@
+--- ./src/main/main.cpp.orig	2015-12-20 02:15:00.948036986 +0000
++++ ./src/main/main.cpp	2015-12-20 02:17:22.472267689 +0000
+@@ -24,7 +24,7 @@
+ 
+ #if defined(Q_OS_LINUX) || defined(__GLIBC__) || defined(__FreeBSD__) || defined(__HAIKU__)
+ #include <signal.h>
+-#include <execinfo.h>
++//#include <execinfo.h>
+ 
+ #include <QDir>
+ #include <QDateTime>
+@@ -48,7 +48,7 @@
+     }
+     sigSegvServed = true;
+ 
+-    std::cout << "QupZilla: Crashed :( Saving backtrace in " << qPrintable(DataPaths::path(DataPaths::Config)) << "/crashlog ..." << std::endl;
++/*    std::cout << "QupZilla: Crashed :( Saving backtrace in " << qPrintable(DataPaths::path(DataPaths::Config)) << "/crashlog ..." << std::endl;
+ 
+     void* array[100];
+     int size = backtrace(array, 100);
+@@ -97,6 +97,7 @@
+     file.close();
+ 
+     std::cout << "Backtrace successfully saved in " << qPrintable(dir.absoluteFilePath(file.fileName())) << std::endl;
++*/
+ }
+ #endif // defined(Q_OS_LINUX) || defined(__GLIBC__) || defined(__FreeBSD__)
+ 
