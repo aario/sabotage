@@ -20,7 +20,7 @@ export QUPZILLA_PREFIX="$butch_prefix" \
 export DISABLE_DBUS=true
 qmake \
 QMAKE_CPPFLAGS+="-D_GNU_SOURCE" QMAKE_CFLAGS+="$optcflags" QMAKE_CXXFLAGS+="$optcflags" \
-QMAKE_LFLAGS+="$optldflags -lQt5X11Extras -lhunspell-1.3 -Wl,-rpath-link=$butch_root_dir$butch_prefix/lib" \
+QMAKE_LFLAGS+="$optldflags -lQt5X11Extras -lX11 -lcrypto -lhunspell-1.3 -Wl,-rpath-link=$butch_root_dir$butch_prefix/lib" \
 CONFIG+="staticlib"
 
 
