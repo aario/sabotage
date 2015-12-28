@@ -15,8 +15,8 @@ hunspell
 patch -p1 < $K/qupzilla-backtrace.patch
 patch -p1 < $K/qupzilla-static-lib.patch
 
-export QUPZILLA_PREFIX="$butch_prefix" \
-       USE_WEBGL=true      
+export QUPZILLA_PREFIX="$butch_prefix"
+export USE_WEBGL=true      
 export DISABLE_DBUS=true
 qmake \
 QMAKE_CPPFLAGS+="-D_GNU_SOURCE" QMAKE_CFLAGS+="$optcflags" QMAKE_CXXFLAGS+="$optcflags" \
@@ -26,4 +26,4 @@ CONFIG+="staticlib"
 
 make -j$MAKE_THREADS
 
-make DESTDIR="$butch_install_dir" install
+make INSTALL_ROOT="$butch_install_dir" install
