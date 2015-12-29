@@ -3,7 +3,7 @@ filesize=1524638
 sha512=6c8b8ee6a22cab5da5f262b281ed914e9cce99607312124b068a3386d9da560a3584acea4ce1be6700e40087febcc269273ab67ea472b99e6d3f75048d164788
 
 [mirrors]
-https://www.keepassx.org/releases/2.0/keepassx-2.0.tar.gz
+https://www.keepassx.org/releases/2.0-beta1/keepassx-2.0-beta1.tar.gz
 
 [deps]
 qt5
@@ -13,6 +13,15 @@ cmake
 
 [build]
 sed -i 's/Qt4 4.6.0/Qt5 5.0.0/g' ./CMakeLists.txt 
+sed -i 's/include(\${QT_USE_FILE})/include_directories(\${Qt5Widgets_INCLUDE_DIRS})/g' ./CMakeLists.txt
+sed -i 's/QtCore QtGui QtTest/Core Gui Test LinguistTools Widgets Declarative/g' ./CMakeLists.txt
+find ./ -name CMakeLists.txt -exec sed -i 's/qt4_/qt5_/g' {} \;
+find ./ -name CMakeLists.txt -exec sed -i 's/_wrap_ui/_generate_moc/g' {} \;
+sed -i 's/#include <QHash>/#include <QHash>\n#include <QObject>/g' src/core/Database.h
+find ./ -type f -exec sed -i 's/#include <QTest>/#include <QTest/QTest>/g' {} \;
+find ./ -type f -exec sed -i 's/#include <QAbstractFileEngine>/#include <QtCore\/QFile>/g' {} \;
+
+ 
 mkdir -p build && cd build
 for i in ar ld nm objcopy objdump strip ; do
 printf '#!/bin/sh\n%s%s "$@"\n' "$CROSS_COMPILE" "$i" > "$CROSS_COMPILE""$i"
@@ -31,9 +40,9 @@ done
 -DCMAKE_STRIP="$CROSS_COMPILE"strip \
 "
 
-CFLAGS="-D_GNU_SOURCE $optcflags" \
+CFLAGS="-D_GNU_SOURCE $optcflags -fPIC" \
 LDFLAGS="$optldflags  -Wl,-rpath-link=$butch_root_dir$butch_prefix/lib" \
-CXXFLAGS="$optcflags" \
+CXXFLAGS="$optcflags -fPIC" \
 cmake $xconfflags \
   -DCMAKE_EXE_LINKER_FLAGS="-static" \
   -DCMAKE_INSTALL_PREFIX="$butch_prefix" \
